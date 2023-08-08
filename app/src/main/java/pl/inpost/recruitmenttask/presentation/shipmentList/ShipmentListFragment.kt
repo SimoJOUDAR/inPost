@@ -1,19 +1,29 @@
 package pl.inpost.recruitmenttask.presentation.shipmentList
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import dagger.hilt.android.AndroidEntryPoint
 import pl.inpost.recruitmenttask.R
 import pl.inpost.recruitmenttask.databinding.FragmentShipmentListBinding
 import pl.inpost.recruitmenttask.databinding.ShipmentItemBinding
+import pl.inpost.recruitmenttask.network.model.ShipmentNetwork
+import pl.inpost.recruitmenttask.presentation.adapters.ShipmentsAdapter
 
 @AndroidEntryPoint
 class ShipmentListFragment : Fragment() {
 
     private val viewModel: ShipmentListViewModel by viewModels()
-    private var binding: FragmentShipmentListBinding? = null
+    private var _binding: FragmentShipmentListBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var adapter: ShipmentsAdapter
+    private val onRefreshListener = SwipeRefreshLayout.OnRefreshListener {
+        binding.swipeRefresh.isRefreshing = true
+        viewModel.refreshData()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,29 +36,43 @@ class ShipmentListFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentShipmentListBinding.inflate(inflater, container, false)
-        return requireNotNull(binding).root
+        _binding = FragmentShipmentListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.viewState.observe(requireActivity()) { shipments ->
-            shipments.forEach { shipmentNetwork ->
-                val shipmentItemBinding = ShipmentItemBinding.inflate(layoutInflater).apply {
-                    shipmentNumber.text = shipmentNetwork.number
-                    status.text = shipmentNetwork.status
-                }
-                binding?.scrollViewContent?.addView(shipmentItemBinding.root)
-            }
-        }
+        setRecyclerView()
+        setData()
+        setSwipeRefresh()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding = null
+        _binding = null
     }
 
-    companion object {
-        fun newInstance() = ShipmentListFragment()
+    private fun setRecyclerView() {
+        val onItemClickListener = View.OnClickListener { itemView ->
+            val shipment = itemView.tag as ShipmentNetwork
+            //findNavController().navigate(HomepageFragmentDirections.actionHomepageFragmentToDetailFragment(shipment)) //TODO
+        }
+
+        val onContextClickListener = View.OnContextClickListener { true }
+
+        adapter = ShipmentsAdapter(onItemClickListener, onContextClickListener)
+        binding.recyclerview.adapter = adapter
+    }
+
+    private fun setSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener(onRefreshListener)
+    }
+
+    private fun setData() {
+        viewModel.viewState.observe(requireActivity()) { shipments ->
+            ((binding.recyclerview.adapter) as ShipmentsAdapter).submitList(shipments)
+            binding.swipeRefresh.isRefreshing = false
+        }
+
     }
 }

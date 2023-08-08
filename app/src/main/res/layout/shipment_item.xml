@@ -1,29 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="shipment"
+            type="pl.inpost.recruitmenttask.network.model.ShipmentNetwork" />
+    </data>
 
     <LinearLayout
+        android:id="@+id/item_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="#E6E0E0"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingVertical="20dp"
+        android:paddingHorizontal="24dp"
+        android:background="@color/white"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/shipmentNumber"
+        <LinearLayout
+            android:id="@+id/section_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="1234553459359043" />
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/status"
+            <LinearLayout
+                android:id="@+id/shipment_number_section"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/shipment_number_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tracking_number"
+                    style="@style/section_title"/>
+
+                <TextView
+                    android:id="@+id/shipment_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="235678654323567889762231"
+                    android:text="@{shipment.number}"
+                    style="@style/section_details"/>
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/tag_section"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingStart="6dp">
+
+                <ImageView
+                    android:id="@+id/tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:src="@drawable/ic_delivery_car"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/section_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            tools:text="Gotowa do odbioru" />
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <LinearLayout
+                android:id="@+id/status_section"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/status_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status"
+                    style="@style/section_title"/>
+
+                <TextView
+                    android:id="@+id/status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Out for delivery"
+                    status="@{shipment}"
+                    style="@style/section_details_bold"/>
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/date_section"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="6dp">
+
+                <TextView
+                    android:id="@+id/date_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="@string/pickup_deadline"
+                    date_title="@{shipment}"
+                    style="@style/section_title"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="pn. | 14.06.18 | 11:30"
+                    date="@{shipment}"
+                    style="@style/section_details"
+                    app:layout_constraintTop_toBottomOf="@id/date_title"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/section_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <LinearLayout
+                android:id="@+id/sender_section"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/sender_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sender"
+                    style="@style/section_title"/>
+
+                <TextView
+                    android:id="@+id/sender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="adresmailowy@mail.pl"
+                    sender="@{shipment}"
+                    style="@style/section_details_bold"/>
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/more_section"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="4dp"
+                android:paddingStart="6dp">
+
+                <TextView
+                    android:id="@+id/more"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/more"
+                    style="@style/section_more"
+                    app:layout_constraintEnd_toStartOf="@id/more_arrow"
+                    app:layout_constraintTop_toTopOf="@id/more_arrow"
+                    app:layout_constraintBottom_toBottomOf="@id/more_arrow"/>
+
+                <ImageView
+                    android:id="@+id/more_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="2dp"
+                    android:src="@drawable/ic_arrow_yellow"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
     </LinearLayout>
-</LinearLayout>
+
+</layout>

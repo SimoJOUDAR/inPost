@@ -19,6 +19,7 @@ class ShipmentListViewModel @Inject constructor(
     private val shipmentApi: ShipmentApi
 ) : ViewModel() {
 
+    //TODO: use coroutines
     private val mutableViewState = MutableLiveData<List<ShipmentNetwork>>(emptyList())
     val viewState: LiveData<List<ShipmentNetwork>> = mutableViewState
 
@@ -26,7 +27,7 @@ class ShipmentListViewModel @Inject constructor(
         refreshData()
     }
 
-    private fun refreshData() {
+    fun refreshData() {
         GlobalScope.launch(Dispatchers.Main) {
             val shipments = shipmentApi.getShipments()
             mutableViewState.setState { shipments }
