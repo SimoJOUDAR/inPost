@@ -1,14 +1,13 @@
 package pl.inpost.recruitmenttask.util
 
-import android.opengl.Visibility
 import android.os.Build
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.databinding.BindingAdapter
 import pl.inpost.recruitmenttask.R
-import pl.inpost.recruitmenttask.network.model.ShipmentNetwork
-import pl.inpost.recruitmenttask.network.model.ShipmentStatus
+import pl.inpost.recruitmenttask.domain.model.ShipmentNetwork
+import pl.inpost.recruitmenttask.domain.model.ShipmentStatus
 
 class CustomDataBinding {
 

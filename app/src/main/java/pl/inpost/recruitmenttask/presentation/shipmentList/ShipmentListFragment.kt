@@ -1,7 +1,6 @@
 package pl.inpost.recruitmenttask.presentation.shipmentList
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -9,9 +8,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import dagger.hilt.android.AndroidEntryPoint
 import pl.inpost.recruitmenttask.R
 import pl.inpost.recruitmenttask.databinding.FragmentShipmentListBinding
-import pl.inpost.recruitmenttask.databinding.ShipmentItemBinding
-import pl.inpost.recruitmenttask.network.model.ShipmentNetwork
-import pl.inpost.recruitmenttask.presentation.adapters.ShipmentsAdapter
+import pl.inpost.recruitmenttask.domain.model.ShipmentNetwork
+import pl.inpost.recruitmenttask.presentation.adapters.ShipmentWrapperAdapter
 
 @AndroidEntryPoint
 class ShipmentListFragment : Fragment() {
@@ -19,7 +17,7 @@ class ShipmentListFragment : Fragment() {
     private val viewModel: ShipmentListViewModel by viewModels()
     private var _binding: FragmentShipmentListBinding? = null
     private val binding get() = _binding!!
-    private lateinit var adapter: ShipmentsAdapter
+    private lateinit var adapter: ShipmentWrapperAdapter
     private val onRefreshListener = SwipeRefreshLayout.OnRefreshListener {
         binding.swipeRefresh.isRefreshing = true
         viewModel.refreshData()
@@ -55,12 +53,12 @@ class ShipmentListFragment : Fragment() {
     private fun setRecyclerView() {
         val onItemClickListener = View.OnClickListener { itemView ->
             val shipment = itemView.tag as ShipmentNetwork
-            //findNavController().navigate(HomepageFragmentDirections.actionHomepageFragmentToDetailFragment(shipment)) //TODO
+            //findNavController().navigate(ShipmentListFragmentDirections.actionShipmentListFragmentToDetailFragment(shipment)) //TODO
         }
 
         val onContextClickListener = View.OnContextClickListener { true }
 
-        adapter = ShipmentsAdapter(onItemClickListener, onContextClickListener)
+        adapter = ShipmentWrapperAdapter(onItemClickListener, onContextClickListener)
         binding.recyclerview.adapter = adapter
     }
 
@@ -69,8 +67,8 @@ class ShipmentListFragment : Fragment() {
     }
 
     private fun setData() {
-        viewModel.viewState.observe(requireActivity()) { shipments ->
-            ((binding.recyclerview.adapter) as ShipmentsAdapter).submitList(shipments)
+        viewModel.viewState.observe(requireActivity()) { shipmentWrapper ->
+            ((binding.recyclerview.adapter) as ShipmentWrapperAdapter).submitList(shipmentWrapper)
             binding.swipeRefresh.isRefreshing = false
         }
 

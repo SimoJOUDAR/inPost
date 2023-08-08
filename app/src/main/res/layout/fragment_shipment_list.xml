@@ -12,7 +12,8 @@
         android:id="@+id/recyclerview"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:paddingTop="16dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/shipment_item"/>
+        tools:listitem="@layout/shipment_wrapper"/>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

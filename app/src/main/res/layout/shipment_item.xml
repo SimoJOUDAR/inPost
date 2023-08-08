@@ -7,7 +7,7 @@
     <data>
         <variable
             name="shipment"
-            type="pl.inpost.recruitmenttask.network.model.ShipmentNetwork" />
+            type="pl.inpost.recruitmenttask.domain.model.ShipmentNetwork" />
     </data>
 
     <LinearLayout

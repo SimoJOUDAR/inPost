@@ -7,12 +7,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import pl.inpost.recruitmenttask.databinding.ShipmentItemBinding
-import pl.inpost.recruitmenttask.network.model.ShipmentNetwork
+import pl.inpost.recruitmenttask.domain.model.ShipmentNetwork
 
-class ShipmentsAdapter (
+class ShipmentItemAdapter (
     private val onItemClickListener: View.OnClickListener,
     private val onContextClickListener: View.OnContextClickListener
-) : ListAdapter<ShipmentNetwork, ShipmentsAdapter.ShipmentViewHolder>(callback) {
+) : ListAdapter<ShipmentNetwork, ShipmentItemAdapter.ShipmentViewHolder>(callback) {
 
     companion object {
         private val callback = object : DiffUtil.ItemCallback<ShipmentNetwork>() {
@@ -24,7 +24,9 @@ class ShipmentsAdapter (
         }
     }
 
-    class ShipmentViewHolder(val binding: ShipmentItemBinding) : RecyclerView.ViewHolder(binding.root)
+    class ShipmentViewHolder(
+        val binding: ShipmentItemBinding
+    ) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShipmentViewHolder {
         val binding = ShipmentItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
