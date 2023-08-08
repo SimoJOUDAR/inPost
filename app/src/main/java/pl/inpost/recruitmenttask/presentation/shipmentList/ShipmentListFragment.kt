@@ -2,13 +2,20 @@ package pl.inpost.recruitmenttask.presentation.shipmentList
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import pl.inpost.recruitmenttask.R
 import pl.inpost.recruitmenttask.databinding.FragmentShipmentListBinding
 import pl.inpost.recruitmenttask.domain.model.ShipmentNetwork
+import pl.inpost.recruitmenttask.domain.model.ShipmentWrapper
 import pl.inpost.recruitmenttask.presentation.adapters.ShipmentWrapperAdapter
 
 @AndroidEntryPoint
@@ -18,10 +25,6 @@ class ShipmentListFragment : Fragment() {
     private var _binding: FragmentShipmentListBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: ShipmentWrapperAdapter
-    private val onRefreshListener = SwipeRefreshLayout.OnRefreshListener {
-        binding.swipeRefresh.isRefreshing = true
-        viewModel.refreshData()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,8 +44,8 @@ class ShipmentListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setRecyclerView()
-        setData()
         setSwipeRefresh()
+        collectData()
     }
 
     override fun onDestroyView() {
@@ -63,14 +66,36 @@ class ShipmentListFragment : Fragment() {
     }
 
     private fun setSwipeRefresh() {
-        binding.swipeRefresh.setOnRefreshListener(onRefreshListener)
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.refreshData()
+        }
     }
 
-    private fun setData() {
-        viewModel.viewState.observe(requireActivity()) { shipmentWrapper ->
-            ((binding.recyclerview.adapter) as ShipmentWrapperAdapter).submitList(shipmentWrapper)
-            binding.swipeRefresh.isRefreshing = false
+    private fun collectData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.wrappedShipmentsStateFlow.collectLatest {
+                    when (it) {
+                        is ShipmentUiState.Loading -> displayIsLoading()
+                        is ShipmentUiState.Error -> displayError(it.error)
+                        is ShipmentUiState.Success -> displayData(it.wrappedShipments)
+                    }
+                }
+            }
         }
+    }
 
+    private fun displayIsLoading() {
+        binding.swipeRefresh.isRefreshing = true
+    }
+
+    private fun displayError(e : Exception) {
+        binding.swipeRefresh.isRefreshing = false
+        Toast.makeText(requireContext(), e.toString(), Toast.LENGTH_LONG).show()
+    }
+
+    private fun displayData(data: List<ShipmentWrapper>) {
+        binding.swipeRefresh.isRefreshing = false
+        ((binding.recyclerview.adapter) as ShipmentWrapperAdapter).submitList(data)
     }
 }

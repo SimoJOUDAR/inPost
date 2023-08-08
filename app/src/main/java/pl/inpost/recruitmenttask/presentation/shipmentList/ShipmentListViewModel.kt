@@ -1,56 +1,49 @@
 package pl.inpost.recruitmenttask.presentation.shipmentList
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import pl.inpost.recruitmenttask.data.network.api.ShipmentApi
-import pl.inpost.recruitmenttask.domain.model.ShipmentNetwork
+import pl.inpost.recruitmenttask.data.repositories.ShipmentsRepository
 import pl.inpost.recruitmenttask.domain.model.ShipmentWrapper
-import pl.inpost.recruitmenttask.util.setState
+import pl.inpost.recruitmenttask.util.wrapShipments
 import javax.inject.Inject
 
 @HiltViewModel
 class ShipmentListViewModel @Inject constructor(
-    private val shipmentApi: ShipmentApi
+    private val repository: ShipmentsRepository
 ) : ViewModel() {
 
-    //TODO: use coroutines
-
-    private val mutableViewState = MutableLiveData<List<ShipmentWrapper>>(emptyList())
-    val viewState: LiveData<List<ShipmentWrapper>> = mutableViewState
+    private val _wrappedShipmentsStateFlow = MutableStateFlow<ShipmentUiState>(ShipmentUiState.Loading)
+    val wrappedShipmentsStateFlow = _wrappedShipmentsStateFlow.asStateFlow().stateIn(
+        scope = viewModelScope,
+        initialValue = ShipmentUiState.Loading,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000)
+    )
 
     init {
         refreshData()
     }
 
-    fun refreshData() {
-        GlobalScope.launch(Dispatchers.Main) {
-            val shipments = shipmentApi.getShipments()
-            val wrappers = wrapShipments(shipments)
-            mutableViewState.setState { wrappers }
-
+    fun refreshData() = viewModelScope.launch(Dispatchers.IO) {
+        _wrappedShipmentsStateFlow.emit(ShipmentUiState.Loading)
+        val response = repository.getShipmentsFromApi()
+        if (response.isSuccessful)
+            _wrappedShipmentsStateFlow.emit(ShipmentUiState.Success(response.body.wrapShipments()))
+        else {
+            val e = response.exception ?: Exception("An unidentified error occurred. We couldn't load the data. Please, check your internet connection.")
+            _wrappedShipmentsStateFlow.emit(ShipmentUiState.Error(e))
         }
     }
+}
 
-    private fun wrapShipments(shipments: List<ShipmentNetwork>) : List<ShipmentWrapper> {
-        val highlighted = mutableListOf<ShipmentNetwork>()
-        val others = mutableListOf<ShipmentNetwork>()
-
-        for (shipment in shipments) {
-            if (shipment.operations.highlight) highlighted.add(shipment)
-            else others.add(shipment)
-        }
-        val wrapperList = mutableListOf<ShipmentWrapper>()
-
-        if (highlighted.isNotEmpty())
-            wrapperList.add(ShipmentWrapper(ShipmentWrapper.Section.HIGHLIGHTED, highlighted))
-        if (others.isNotEmpty())
-            wrapperList.add(ShipmentWrapper(ShipmentWrapper.Section.OTHER, others))
-
-        return wrapperList
-    }
+sealed class ShipmentUiState {
+    object Loading: ShipmentUiState()
+    data class Success(val wrappedShipments : List<ShipmentWrapper>): ShipmentUiState()
+    data class Error(val error: Exception): ShipmentUiState()
 }

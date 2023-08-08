@@ -7,6 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import pl.inpost.recruitmenttask.R
 import pl.inpost.recruitmenttask.data.network.ApiTypeAdapter
+import pl.inpost.recruitmenttask.data.network.SimpleResponse
 import pl.inpost.recruitmenttask.domain.model.*
 import java.time.ZonedDateTime
 import kotlin.random.Random
@@ -31,15 +32,17 @@ class MockShipmentApi(
     }
     private var firstUse = true
 
-    override suspend fun getShipments(): List<ShipmentNetwork> {
+    override suspend fun getShipments(): SimpleResponse<List<ShipmentNetwork>> {
         delay(1000)
-        return response.shipments
-//        return if (firstUse) {
-//            firstUse = false
-//            emptyList()
-//        } else {
-//            response.shipments
-//        }
+        return safeApiCall { SimpleResponse.Response(response.shipments) }
+    }
+}
+
+private inline fun <T> safeApiCall(apiCall: () -> SimpleResponse.Response<T>): SimpleResponse<T> {
+    return try {
+        SimpleResponse.success(apiCall.invoke())
+    } catch (e: Exception) {
+        SimpleResponse.failure(e)
     }
 }
 

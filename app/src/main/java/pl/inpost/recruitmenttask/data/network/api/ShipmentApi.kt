@@ -1,7 +1,8 @@
 package pl.inpost.recruitmenttask.data.network.api
 
+import pl.inpost.recruitmenttask.data.network.SimpleResponse
 import pl.inpost.recruitmenttask.domain.model.ShipmentNetwork
 
 interface ShipmentApi {
-    suspend fun getShipments(): List<ShipmentNetwork>
+    suspend fun getShipments(): SimpleResponse<List<ShipmentNetwork>>
 }
