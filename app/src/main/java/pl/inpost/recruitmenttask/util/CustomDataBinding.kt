@@ -2,6 +2,7 @@ package pl.inpost.recruitmenttask.util
 
 import android.os.Build
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.databinding.BindingAdapter
@@ -58,6 +59,19 @@ class CustomDataBinding {
                     RECEIVED -> textView.text = it.expiryDate?.setFormattedDate()
                     else -> textView.visibility = View.GONE
                 }
+            }
+        }
+
+        @JvmStatic
+        @BindingAdapter("tag_image")
+        fun bindTagImage(imageView: ImageView, shipment: ShipmentNetwork?) {
+            shipment?.let {
+                imageView.setImageResource (
+                    when (it.status) {
+                        ShipmentStatus.OUT_FOR_DELIVERY.name -> R.drawable.ic_delivery_car
+                        else -> R.drawable.ic_parcel_locker
+                    }
+                )
             }
         }
 
